@@ -71,7 +71,7 @@ namespace TicTacToe.ConsoleApp
 			//Check row
 			for (int i = 0; i < SIZE; i++)
 			{
-				if (arr[i, 0] == arr[i, 1] && arr[i, 1] == arr[i, 2] && !string.IsNullOrEmpty(arr[i, 0]))
+				if (!string.IsNullOrEmpty(arr[i, 0]) && arr[i, 0] == arr[i, 1] && arr[i, 1] == arr[i, 2])
 				{
 					return arr[i, 0] == "x" ? 10 : -10;
 				}
@@ -80,19 +80,19 @@ namespace TicTacToe.ConsoleApp
 			//Check col
 			for (int k = 0; k < SIZE; k++)
 			{
-				if (arr[0, k] == arr[1, k] && arr[1, k] == arr[2, k] && !string.IsNullOrEmpty(arr[0, k]))
+				if (!string.IsNullOrEmpty(arr[0, k]) && arr[0, k] == arr[1, k] && arr[1, k] == arr[2, k])
 				{
 					return arr[0, k] == "x" ? 10 : -10;
 				}
 			}
 
 			//Check diagonals
-			if (arr[0, 0] == arr[1, 1] && arr[1, 1] == arr[2, 2] && !string.IsNullOrEmpty(arr[0, 0]))
+			if (!string.IsNullOrEmpty(arr[0, 0]) && arr[0, 0] == arr[1, 1] && arr[1, 1] == arr[2, 2])
 			{
 				return arr[0, 0] == "x" ? 10 : -10;
 			}
 
-			if (arr[0, 2] == arr[1, 1] && arr[1, 1] == arr[2, 0] && !string.IsNullOrEmpty(arr[0, 2]))
+			if (!string.IsNullOrEmpty(arr[0, 2]) && arr[0, 2] == arr[1, 1] && arr[1, 1] == arr[2, 0])
 			{
 				return arr[0, 2] == "x" ? 10 : -10;
 			}

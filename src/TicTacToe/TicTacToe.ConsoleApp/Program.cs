@@ -11,20 +11,26 @@ namespace TicTacToe.ConsoleApp
 			Console.WriteLine("Computer takes x. You take o");
 			Board board = new Board();
 			GameHelper gameHelper = new GameHelper();
+			const int ALPHA = int.MinValue;
+			const int BETA = int.MaxValue;
 			bool isMax = false;     //Human plays first
+
+			Console.WriteLine("NEW GAME\n");
 			board.PrintBoard();
 
 			while (true)
 			{
 				if (!isMax)
 				{
-					Console.Write("Input your position that you want to make, e.g. you want to go in the very first cell, type 0,0");
+					Console.WriteLine("Your turn:");
+					Console.Write("Input your position that you want to make, e.g. you want to go in the very first cell, type 0,0:  ");
 					string[] pos = Console.ReadLine().Split(",", StringSplitOptions.RemoveEmptyEntries);
 					board.Set(int.Parse(pos[0]), int.Parse(pos[1]), "o");
 				}
 				else
 				{
-					Tuple<int, int> pos = gameHelper.FindBestMove(board);
+					Console.WriteLine("Computer's turn:");
+					Tuple<int, int> pos = gameHelper.FindBestMove(board, ALPHA, BETA);
 					board.Set(pos.Item1, pos.Item2, "x");
 				}
 
@@ -37,21 +43,22 @@ namespace TicTacToe.ConsoleApp
 					switch (state)
 					{
 						case State.Computer:
-							Console.WriteLine("Computer won");
+							Console.WriteLine("OH, COMPUTER WON !!\n\n");
 							isMax = true;
 							break;
 						case State.Human:
-							Console.WriteLine("Congrats, you won");
+							Console.WriteLine("HURA, YOU WON !!\n\n");
 							isMax = false;
 							break;
 						case State.Draw:
-							Console.WriteLine("Draws");
+							Console.WriteLine("DRAWS !!\n\n");
 							isMax = false;
 							break;
 					}
 
 					Thread.Sleep(100);
 					board = new Board();
+					Console.WriteLine("NEW GAME\n");
 					board.PrintBoard();
 				}
 			}
