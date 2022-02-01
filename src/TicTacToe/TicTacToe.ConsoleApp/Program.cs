@@ -1,67 +1,129 @@
 ﻿using System;
-using System.Threading;
+using System.Linq;
+using TicTacToe.Helpers;
 
-namespace TicTacToe.ConsoleApp
+namespace TicTacToe.ConsoleApp;
+
+class Program
 {
-	class Program
+	static string computerLetter;
+	static string humanLetter;
+	static Turn turn;
+	const int ALPHA = int.MinValue;
+	const int BETA = int.MaxValue;
+
+	static void Main(string[] args)
 	{
-		static void Main(string[] args)
+		while (true)
 		{
-			Console.WriteLine("TIC TAC TOE Game");
-			Console.WriteLine("Computer takes x. You take o");
-			Board board = new Board();
-			GameHelper gameHelper = new GameHelper();
-			const int ALPHA = int.MinValue;
-			const int BETA = int.MaxValue;
-			bool isMax = false;     //Human plays first
+			WelcomeBoard();
+			Play(new Board(computerLetter, humanLetter));
+		}
+	}
 
-			Console.WriteLine("NEW GAME\n");
-			board.PrintBoard();
+	static void WelcomeBoard()
+	{
+		Console.Write("TIC TAC TOE GAME");
+		ConsoleKeyInfo c;
 
-			while (true)
+		do
+		{
+			Console.Write("\nPress 1 if you want to be X, or 2 if you want to be O: ");
+			c = Console.ReadKey();
+		}
+		while (c.KeyChar != '1' && c.KeyChar != '2');
+
+		switch (c.KeyChar)
+		{
+			case '1':
+				humanLetter = "X";
+				computerLetter = "O";
+				break;
+			default:
+				humanLetter = "O";
+				computerLetter = "X";
+				break;
+		}
+
+		do
+		{
+			Console.Write("\nPress 1 if you want to go first, otherwise pressing 2: ");
+			c = Console.ReadKey();
+		}
+		while (c.KeyChar != '1' && c.KeyChar != '2');
+
+		switch (c.KeyChar)
+		{
+			case '1':
+				turn = Turn.Human;
+				break;
+			default:
+				turn = Turn.Computer;
+				break;
+		}
+	}
+
+	static void Play(Board board)
+	{
+		int row = -1;
+		int col = -1;
+		GameState state;
+
+		do
+		{
+			Console.ForegroundColor = ConsoleColor.White;
+
+			switch (turn)
 			{
-				if (!isMax)
-				{
-					Console.WriteLine("Your turn:");
-					Console.Write("Input your position that you want to make, e.g. you want to go in the very first cell, type 0,0:  ");
-					string[] pos = Console.ReadLine().Split(",", StringSplitOptions.RemoveEmptyEntries);
-					board.Set(int.Parse(pos[0]), int.Parse(pos[1]), "o");
-				}
-				else
-				{
-					Console.WriteLine("Computer's turn:");
-					Tuple<int, int> pos = gameHelper.FindBestMove(board, ALPHA, BETA);
-					board.Set(pos.Item1, pos.Item2, "x");
-				}
-
-				board.PrintBoard();
-				isMax = !isMax;
-				State state = board.CheckGameState(board);
-
-				if (state != State.Undefined)
-				{
-					switch (state)
+				case Turn.Computer:
+					Console.WriteLine("\nComputer's turn");
+					var point = GameHelper.FindBestMove(board, ALPHA, BETA);
+					board.SetCell(point.Item1, point.Item2, turn);
+					turn = Turn.Human;
+					break;
+				default:
+					Console.WriteLine("\nYour turn");
+					try
 					{
-						case State.Computer:
-							Console.WriteLine("OH, COMPUTER WON !!\n\n");
-							isMax = true;
-							break;
-						case State.Human:
-							Console.WriteLine("HURA, YOU WON !!\n\n");
-							isMax = false;
-							break;
-						case State.Draw:
-							Console.WriteLine("DRAWS !!\n\n");
-							isMax = false;
-							break;
+						do
+						{
+							Console.Write("\nInput point (row 1 -> 3, col 1 -> 3), separated by blank, eg: 1 2: ");
+							var points = Console.ReadLine().Split(" ", StringSplitOptions.RemoveEmptyEntries).Select(m => int.Parse(m)).ToArray();
+							if (points.Length <= 1)
+							{
+								continue;
+							}
+							row = points[0] - 1;
+							col = points[1] - 1;
+						}
+						while (row < 0 || row > 2 || col < 0 || col > 2 || !board.IsEmptyCell(row, col));
 					}
+					catch { }
 
-					Thread.Sleep(100);
-					board = new Board();
-					Console.WriteLine("NEW GAME\n");
-					board.PrintBoard();
-				}
+					board.SetCell(row, col, turn);
+					turn = Turn.Computer;
+					break;
 			}
+
+			board.PrintBoard();
+			state = board.CheckState();
+		}
+		while (state == GameState.NotYet);
+
+		switch (state)
+		{
+			case GameState.ComputerWin:
+				Console.ForegroundColor = ConsoleColor.DarkRed;
+				Console.WriteLine("Computer wins");
+				break;
+			case GameState.HumanWin:
+				Console.ForegroundColor = ConsoleColor.DarkRed;
+				Console.WriteLine("You win");
+				break;
+			default:
+				Console.ForegroundColor = ConsoleColor.DarkGreen;
+				Console.WriteLine("Draw");
+				break;
 		}
 	}
 }
